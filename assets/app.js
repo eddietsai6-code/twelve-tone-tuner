@@ -1,9 +1,12 @@
 import {
   centsToNeedleDegrees,
   detectPitchAutoCorrelate,
+  findClosestInstrumentTarget,
   frequencyToNote,
   getRms,
+  getTuningHint,
   isTuned,
+  TUNING_MODES,
 } from "./tuner-core.js";
 
 const app = document.querySelector("#tunerApp");
@@ -12,11 +15,13 @@ const a4Input = document.querySelector("#a4Input");
 const needle = document.querySelector("#needle");
 const vuMeter = document.querySelector(".vu-meter");
 const scale = document.querySelector(".scale");
+const meterFrequency = document.querySelector("#meterFrequency");
+const meterCentsValue = document.querySelector("#meterCentsValue");
+const modeButtons = document.querySelectorAll(".mode-button");
+const modeKicker = document.querySelector(".kicker");
 const noteName = document.querySelector("#noteName");
 const noteOctave = document.querySelector("#noteOctave");
-const frequencyValue = document.querySelector("#frequencyValue");
 const targetValue = document.querySelector("#targetValue");
-const centsValue = document.querySelector("#centsValue");
 const statusText = document.querySelector("#statusText");
 const levelFill = document.querySelector("#levelFill");
 
@@ -27,6 +32,7 @@ let animationFrame = null;
 let timeBuffer = null;
 let lastFrequency = null;
 let lastDetectedAt = 0;
+let activeMode = "chromatic";
 
 function buildScale() {
   for (let cents = -50; cents <= 50; cents += 5) {
@@ -55,6 +61,10 @@ function formatFrequency(value) {
   return Number.isFinite(value) ? value.toFixed(1) : "--";
 }
 
+function formatNoteLabel(note) {
+  return note ? `${note.name}${note.octave}` : "--";
+}
+
 function setStatus(text, isError = false) {
   statusText.textContent = text;
   statusText.classList.toggle("error", isError);
@@ -71,32 +81,62 @@ function setTunedState(tuned) {
   document.body.classList.toggle("tuned", tuned);
 }
 
-function updateReadout(note) {
-  if (!note) {
+function getTuningResult(frequency) {
+  if (activeMode === "chromatic") {
+    const note = frequencyToNote(frequency, getA4());
+    return note
+      ? {
+          ...note,
+          display: formatNoteLabel(note),
+        }
+      : null;
+  }
+
+  return findClosestInstrumentTarget(frequency, activeMode, getA4());
+}
+
+function updateModeReadout() {
+  const mode = TUNING_MODES[activeMode] || TUNING_MODES.chromatic;
+  modeKicker.textContent = mode.label;
+
+  modeButtons.forEach((button) => {
+    const modeId = button.dataset.mode || "chromatic";
+    const selected = modeId === activeMode;
+    const reference = button.querySelector(".mode-reference");
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+    if (reference) {
+      reference.textContent = getTuningHint(modeId);
+    }
+  });
+}
+
+function updateReadout(result) {
+  if (!result) {
     setTunedState(false);
     setNeedle(0);
+    meterFrequency.textContent = "--";
+    meterCentsValue.textContent = "0";
     noteName.textContent = "--";
     noteOctave.textContent = "";
-    frequencyValue.textContent = "--";
-    targetValue.textContent = "--";
-    centsValue.textContent = "0";
+    targetValue.textContent = "";
     return;
   }
 
-  const tuned = isTuned(note.cents);
-  const centsPrefix = note.cents > 0 ? "+" : "";
+  const tuned = isTuned(result.cents);
+  const centsPrefix = result.cents > 0 ? "+" : "";
 
   setTunedState(tuned);
-  setNeedle(note.cents);
-  noteName.textContent = note.name;
-  noteOctave.textContent = note.octave;
-  frequencyValue.textContent = formatFrequency(note.frequency);
-  targetValue.textContent = formatFrequency(note.targetFrequency);
-  centsValue.textContent = `${centsPrefix}${note.cents}`;
+  setNeedle(result.cents);
+  meterFrequency.textContent = formatFrequency(result.frequency);
+  meterCentsValue.textContent = `${centsPrefix}${result.cents}`;
+  noteName.textContent = result.name;
+  noteOctave.textContent = result.octave;
+  targetValue.textContent = activeMode === "chromatic" ? "" : result.display;
 
   if (tuned) {
     setStatus("TUNED");
-  } else if (note.cents < 0) {
+  } else if (result.cents < 0) {
     setStatus("FLAT");
   } else {
     setStatus("SHARP");
@@ -126,7 +166,7 @@ function tick() {
   if (detected) {
     lastFrequency = detected;
     lastDetectedAt = performance.now();
-    updateReadout(frequencyToNote(detected, getA4()));
+    updateReadout(getTuningResult(detected));
   } else if (lastFrequency && performance.now() - lastDetectedAt > 650) {
     lastFrequency = null;
     updateReadout(null);
@@ -218,9 +258,22 @@ startButton.addEventListener("click", () => {
 a4Input.addEventListener("change", () => {
   a4Input.value = getA4().toString();
   if (lastFrequency) {
-    updateReadout(frequencyToNote(lastFrequency, getA4()));
+    updateReadout(getTuningResult(lastFrequency));
   }
 });
 
+modeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    activeMode = button.dataset.mode || "chromatic";
+    updateModeReadout();
+    if (lastFrequency) {
+      updateReadout(getTuningResult(lastFrequency));
+    } else {
+      updateReadout(null);
+    }
+  });
+});
+
 buildScale();
+updateModeReadout();
 updateReadout(null);

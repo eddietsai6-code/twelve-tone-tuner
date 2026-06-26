@@ -16,6 +16,46 @@ export const NOTE_NAMES = [
 const DEFAULT_A4 = 440;
 const A4_MIDI = 69;
 
+export const TUNING_MODES = {
+  chromatic: {
+    id: "chromatic",
+    label: "12-TET",
+    strings: [],
+  },
+  guitar: {
+    id: "guitar",
+    label: "Guitar",
+    strings: [
+      { string: "6", name: "E", octave: 2, midi: 40 },
+      { string: "5", name: "A", octave: 2, midi: 45 },
+      { string: "4", name: "D", octave: 3, midi: 50 },
+      { string: "3", name: "G", octave: 3, midi: 55 },
+      { string: "2", name: "B", octave: 3, midi: 59 },
+      { string: "1", name: "E", octave: 4, midi: 64 },
+    ],
+  },
+  ukulele: {
+    id: "ukulele",
+    label: "Ukulele",
+    strings: [
+      { string: "4", name: "G", octave: 4, midi: 67 },
+      { string: "3", name: "C", octave: 4, midi: 60 },
+      { string: "2", name: "E", octave: 4, midi: 64 },
+      { string: "1", name: "A", octave: 4, midi: 69 },
+    ],
+  },
+  violin: {
+    id: "violin",
+    label: "Violin",
+    strings: [
+      { string: "4", name: "G", octave: 3, midi: 55 },
+      { string: "3", name: "D", octave: 4, midi: 62 },
+      { string: "2", name: "A", octave: 4, midi: 69 },
+      { string: "1", name: "E", octave: 5, midi: 76 },
+    ],
+  },
+};
+
 export function noteNumberToFrequency(midi, a4 = DEFAULT_A4) {
   return a4 * 2 ** ((midi - A4_MIDI) / 12);
 }
@@ -63,6 +103,56 @@ export function centsToNeedleDegrees(cents, maxCents = 50, maxDegrees = 42) {
 
   const clamped = Math.min(maxCents, Math.max(-maxCents, cents));
   return Math.round((clamped / maxCents) * maxDegrees);
+}
+
+function compactStringLabel(stringTarget) {
+  return `${stringTarget.string}=${stringTarget.name}${stringTarget.octave}`;
+}
+
+function displayStringLabel(stringTarget) {
+  return `${stringTarget.string} = ${stringTarget.name}${stringTarget.octave}`;
+}
+
+export function getTuningHint(modeId) {
+  const mode = TUNING_MODES[modeId];
+  if (!mode || !mode.strings.length) {
+    return "Any 12-TET note";
+  }
+
+  return mode.strings.map(compactStringLabel).join(" ");
+}
+
+export function findClosestInstrumentTarget(frequency, modeId, a4 = DEFAULT_A4) {
+  const mode = TUNING_MODES[modeId];
+  if (
+    !mode ||
+    !mode.strings.length ||
+    !Number.isFinite(frequency) ||
+    frequency <= 0
+  ) {
+    return null;
+  }
+
+  let closest = null;
+  for (const stringTarget of mode.strings) {
+    const targetFrequency = noteNumberToFrequency(stringTarget.midi, a4);
+    const cents = centsFromFrequency(frequency, stringTarget.midi, a4);
+    const candidate = {
+      ...stringTarget,
+      modeId,
+      frequency,
+      targetFrequency,
+      cents,
+      compact: compactStringLabel(stringTarget),
+      display: displayStringLabel(stringTarget),
+    };
+
+    if (!closest || Math.abs(candidate.cents) < Math.abs(closest.cents)) {
+      closest = candidate;
+    }
+  }
+
+  return closest;
 }
 
 export function getRms(buffer) {

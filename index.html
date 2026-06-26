@@ -31,17 +31,15 @@
         >
           <div class="meter-face">
             <div class="scale" aria-hidden="true"></div>
-            <div class="red-zone red-zone-left" aria-hidden="true"></div>
-            <div class="red-zone red-zone-right" aria-hidden="true"></div>
             <div class="center-band" aria-hidden="true"></div>
-            <div class="meter-labels" aria-hidden="true">
-              <span>-50</span>
-              <span>-25</span>
-              <strong>0</strong>
-              <span>+25</span>
-              <span>+50</span>
+            <div class="meter-frequency" aria-hidden="true">
+              <span id="meterFrequency">--</span>
+              <small>Hz</small>
             </div>
-            <div class="vu-title" aria-hidden="true">VU</div>
+            <div class="meter-cents" aria-hidden="true">
+              <span id="meterCentsValue">0</span>
+              <small>Cents</small>
+            </div>
             <div class="needle" id="needle" aria-hidden="true"></div>
             <div class="pivot" aria-hidden="true"></div>
           </div>
@@ -49,22 +47,32 @@
 
         <section class="readout-grid" aria-live="polite">
           <div class="primary-note">
-            <span id="noteName">--</span>
-            <small id="noteOctave"></small>
-          </div>
-          <div class="readout">
-            <span class="label">Hz</span>
-            <strong id="frequencyValue">--</strong>
-          </div>
-          <div class="readout">
-            <span class="label">Target</span>
-            <strong id="targetValue">--</strong>
-          </div>
-          <div class="readout">
-            <span class="label">Cents</span>
-            <strong id="centsValue">0</strong>
+            <div class="note-line">
+              <span id="noteName">--</span>
+              <small id="noteOctave"></small>
+            </div>
+            <span class="target-inline" id="targetValue">--</span>
           </div>
         </section>
+
+        <div class="mode-strip" role="group" aria-label="Tuning mode">
+          <button class="mode-button active" type="button" data-mode="chromatic">
+            <span class="mode-name">12-TET</span>
+            <small class="mode-reference">Any 12-TET note</small>
+          </button>
+          <button class="mode-button" type="button" data-mode="guitar">
+            <span class="mode-name">Guitar</span>
+            <small class="mode-reference"></small>
+          </button>
+          <button class="mode-button" type="button" data-mode="ukulele">
+            <span class="mode-name">Ukulele</span>
+            <small class="mode-reference"></small>
+          </button>
+          <button class="mode-button" type="button" data-mode="violin">
+            <span class="mode-name">Violin</span>
+            <small class="mode-reference"></small>
+          </button>
+        </div>
 
         <footer class="control-strip">
           <button class="start-button" id="startButton" type="button">

@@ -5,8 +5,10 @@ import {
   centsFromFrequency,
   detectPitchAutoCorrelate,
   centsToNeedleDegrees,
+  findClosestInstrumentTarget,
   frequencyToNote,
   generateSineBuffer,
+  getTuningHint,
   isTuned,
   noteNumberToFrequency,
 } from "../assets/tuner-core.js";
@@ -54,6 +56,33 @@ test("centsToNeedleDegrees maps cents to a clamped VU needle angle", () => {
   assert.equal(centsToNeedleDegrees(50), 42);
   assert.equal(centsToNeedleDegrees(80), 42);
   assert.equal(centsToNeedleDegrees(-80), -42);
+});
+
+test("findClosestInstrumentTarget matches guitar strings by standard tuning", () => {
+  const target = findClosestInstrumentTarget(82.41, "guitar", 440);
+
+  assert.equal(target.string, "6");
+  assert.equal(target.name, "E");
+  assert.equal(target.octave, 2);
+  assert.equal(target.display, "6 = E2");
+  assert.ok(Math.abs(target.targetFrequency - 82.4069) < 0.01);
+  assert.equal(target.cents, 0);
+});
+
+test("findClosestInstrumentTarget requires the chosen instrument target for green state", () => {
+  const guitarTarget = findClosestInstrumentTarget(440, "guitar", 440);
+  const ukuleleTarget = findClosestInstrumentTarget(440, "ukulele", 440);
+
+  assert.equal(guitarTarget.display, "1 = E4");
+  assert.equal(guitarTarget.cents > 0, true);
+  assert.equal(ukuleleTarget.display, "1 = A4");
+  assert.equal(ukuleleTarget.cents, 0);
+});
+
+test("getTuningHint lists standard instrument strings", () => {
+  assert.equal(getTuningHint("guitar"), "6=E2 5=A2 4=D3 3=G3 2=B3 1=E4");
+  assert.equal(getTuningHint("ukulele"), "4=G4 3=C4 2=E4 1=A4");
+  assert.equal(getTuningHint("violin"), "4=G3 3=D4 2=A4 1=E5");
 });
 
 test("detectPitchAutoCorrelate detects a generated 440 Hz sine wave", () => {
