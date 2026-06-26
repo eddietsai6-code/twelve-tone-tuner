@@ -84,8 +84,8 @@ export function detectPitchAutoCorrelate(
   {
     minFrequency = 50,
     maxFrequency = 2000,
-    rmsThreshold = 0.01,
-    correlationThreshold = 0.78,
+    rmsThreshold = 0.0035,
+    correlationThreshold = 0.68,
   } = {}
 ) {
   if (!buffer.length || !Number.isFinite(sampleRate) || sampleRate <= 0) {
@@ -139,12 +139,32 @@ export function detectPitchAutoCorrelate(
     return null;
   }
 
-  const previous = correlations[bestLag - 1] || bestCorrelation;
-  const current = correlations[bestLag];
-  const next = correlations[bestLag + 1] || bestCorrelation;
+  let selectedLag = bestLag;
+  const significantCorrelation = Math.max(
+    correlationThreshold,
+    bestCorrelation * 0.82
+  );
+
+  for (let lag = minLag + 1; lag < maxLag; lag += 1) {
+    const previous = correlations[lag - 1];
+    const current = correlations[lag];
+    const next = correlations[lag + 1];
+    if (
+      current >= significantCorrelation &&
+      current >= previous &&
+      current > next
+    ) {
+      selectedLag = lag;
+      break;
+    }
+  }
+
+  const previous = correlations[selectedLag - 1] || correlations[selectedLag];
+  const current = correlations[selectedLag];
+  const next = correlations[selectedLag + 1] || correlations[selectedLag];
   const divisor = previous - 2 * current + next;
   const adjustment = divisor ? 0.5 * (previous - next) / divisor : 0;
-  const refinedLag = bestLag + adjustment;
+  const refinedLag = selectedLag + adjustment;
 
   if (!Number.isFinite(refinedLag) || refinedLag <= 0) {
     return null;

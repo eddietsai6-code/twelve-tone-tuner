@@ -71,6 +71,46 @@ test("detectPitchAutoCorrelate detects a generated 440 Hz sine wave", () => {
   assert.ok(Math.abs(detected - 440) < 2, `expected 440 Hz, got ${detected}`);
 });
 
+test("detectPitchAutoCorrelate keeps quiet low notes in the correct octave", () => {
+  const sampleRate = 48000;
+  const buffer = generateSineBuffer({
+    frequency: 110,
+    sampleRate,
+    length: 8192,
+    amplitude: 0.012,
+  });
+
+  const detected = detectPitchAutoCorrelate(buffer, sampleRate, {
+    minFrequency: 40,
+    maxFrequency: 5000,
+    rmsThreshold: 0.0035,
+    correlationThreshold: 0.68,
+  });
+
+  assert.ok(detected);
+  assert.ok(Math.abs(detected - 110) < 1, `expected 110 Hz, got ${detected}`);
+});
+
+test("detectPitchAutoCorrelate detects quieter sustained notes", () => {
+  const sampleRate = 48000;
+  const buffer = generateSineBuffer({
+    frequency: 440,
+    sampleRate,
+    length: 8192,
+    amplitude: 0.006,
+  });
+
+  const detected = detectPitchAutoCorrelate(buffer, sampleRate, {
+    minFrequency: 40,
+    maxFrequency: 5000,
+    rmsThreshold: 0.0035,
+    correlationThreshold: 0.68,
+  });
+
+  assert.ok(detected);
+  assert.ok(Math.abs(detected - 440) < 2, `expected 440 Hz, got ${detected}`);
+});
+
 test("detectPitchAutoCorrelate ignores very quiet input", () => {
   const sampleRate = 48000;
   const buffer = generateSineBuffer({

@@ -119,8 +119,8 @@ function tick() {
   const detected = detectPitchAutoCorrelate(timeBuffer, audioContext.sampleRate, {
     minFrequency: 40,
     maxFrequency: 5000,
-    rmsThreshold: 0.008,
-    correlationThreshold: 0.72,
+    rmsThreshold: 0.0035,
+    correlationThreshold: 0.68,
   });
 
   if (detected) {
@@ -152,7 +152,7 @@ async function start() {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     audioContext = new AudioContextClass();
     analyser = audioContext.createAnalyser();
-    analyser.fftSize = 4096;
+    analyser.fftSize = 8192;
     analyser.smoothingTimeConstant = 0.12;
     timeBuffer = new Float32Array(analyser.fftSize);
 
