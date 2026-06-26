@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>12-TET Hz Tuner</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <main class="tuner-shell" id="tunerApp">
+      <section
+        class="meter-panel"
+        aria-labelledby="appTitle"
+        aria-describedby="statusText"
+      >
+        <header class="top-bar">
+          <div>
+            <p class="kicker">12-TET</p>
+            <h1 id="appTitle">Hz Tuner</h1>
+          </div>
+          <div class="status-lamp" aria-hidden="true"></div>
+        </header>
+
+        <div
+          class="vu-meter"
+          role="meter"
+          aria-label="Cents offset"
+          aria-valuemin="-50"
+          aria-valuemax="50"
+          aria-valuenow="0"
+        >
+          <div class="meter-face">
+            <div class="scale" aria-hidden="true"></div>
+            <div class="red-zone red-zone-left" aria-hidden="true"></div>
+            <div class="red-zone red-zone-right" aria-hidden="true"></div>
+            <div class="center-band" aria-hidden="true"></div>
+            <div class="meter-labels" aria-hidden="true">
+              <span>-50</span>
+              <span>-25</span>
+              <strong>0</strong>
+              <span>+25</span>
+              <span>+50</span>
+            </div>
+            <div class="vu-title" aria-hidden="true">VU</div>
+            <div class="needle" id="needle" aria-hidden="true"></div>
+            <div class="pivot" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <section class="readout-grid" aria-live="polite">
+          <div class="primary-note">
+            <span id="noteName">--</span>
+            <small id="noteOctave"></small>
+          </div>
+          <div class="readout">
+            <span class="label">Hz</span>
+            <strong id="frequencyValue">--</strong>
+          </div>
+          <div class="readout">
+            <span class="label">Target</span>
+            <strong id="targetValue">--</strong>
+          </div>
+          <div class="readout">
+            <span class="label">Cents</span>
+            <strong id="centsValue">0</strong>
+          </div>
+        </section>
+
+        <footer class="control-strip">
+          <button class="start-button" id="startButton" type="button">
+            Start
+          </button>
+          <label class="a4-control">
+            <span>A4</span>
+            <input
+              id="a4Input"
+              type="number"
+              inputmode="decimal"
+              min="400"
+              max="480"
+              step="0.1"
+              value="440"
+            />
+            <span>Hz</span>
+          </label>
+          <div class="level-meter" aria-hidden="true">
+            <span id="levelFill"></span>
+          </div>
+        </footer>
+
+        <p class="status-text" id="statusText">READY</p>
+      </section>
+    </main>
+
+    <script type="module" src="./assets/app.js"></script>
+  </body>
+</html>

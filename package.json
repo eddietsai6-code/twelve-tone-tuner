@@ -1,0 +1,25 @@
+{
+  "name": "twelve-tone-tuner",
+  "version": "0.1.0",
+  "description": "A dependency-free 12-tone equal temperament browser tuner with a vintage VU meter UI.",
+  "type": "module",
+  "license": "MIT",
+  "author": "eddietsai6-code",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eddietsai6-code/twelve-tone-tuner.git"
+  },
+  "homepage": "https://github.com/eddietsai6-code/twelve-tone-tuner#readme",
+  "keywords": [
+    "tuner",
+    "web-audio",
+    "12-tet",
+    "equal-temperament",
+    "pitch-detection",
+    "music"
+  ],
+  "scripts": {
+    "serve": "python -m http.server 4188 --bind 127.0.0.1",
+    "test": "node --test tests/core.test.mjs"
+  }
+}
