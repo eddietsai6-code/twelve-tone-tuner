@@ -7,9 +7,10 @@ A dependency-free browser tuner for 12-tone equal temperament. It listens throug
 - 12-tone equal temperament note detection
 - Frequency readout in Hz
 - Closest note, octave, target Hz, and cents offset
+- Guitar and ukulele standard tuning modes
 - Vintage analog VU meter interface
 - Green tuned state when the pitch is within plus or minus 5 cents
-- Adjustable A4 reference from 400 Hz to 480 Hz
+- Fixed A4 reference at 440 Hz
 - No runtime dependencies, backend, CDN, or account required
 
 ## Quick Start

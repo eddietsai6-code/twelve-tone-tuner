@@ -44,16 +44,6 @@ export const TUNING_MODES = {
       { string: "1", name: "A", octave: 4, midi: 69 },
     ],
   },
-  violin: {
-    id: "violin",
-    label: "Violin",
-    strings: [
-      { string: "4", name: "G", octave: 3, midi: 55 },
-      { string: "3", name: "D", octave: 4, midi: 62 },
-      { string: "2", name: "A", octave: 4, midi: 69 },
-      { string: "1", name: "E", octave: 5, midi: 76 },
-    ],
-  },
 };
 
 export function noteNumberToFrequency(midi, a4 = DEFAULT_A4) {

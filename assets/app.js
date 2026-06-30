@@ -11,7 +11,6 @@ import {
 
 const app = document.querySelector("#tunerApp");
 const startButton = document.querySelector("#startButton");
-const a4Input = document.querySelector("#a4Input");
 const needle = document.querySelector("#needle");
 const vuMeter = document.querySelector(".vu-meter");
 const scale = document.querySelector(".scale");
@@ -33,6 +32,7 @@ let timeBuffer = null;
 let lastFrequency = null;
 let lastDetectedAt = 0;
 let activeMode = "chromatic";
+const tuningA4 = 440;
 
 function buildScale() {
   for (let cents = -50; cents <= 50; cents += 5) {
@@ -50,11 +50,7 @@ function buildScale() {
 }
 
 function getA4() {
-  const value = Number.parseFloat(a4Input.value);
-  if (!Number.isFinite(value)) {
-    return 440;
-  }
-  return Math.min(480, Math.max(400, value));
+  return tuningA4;
 }
 
 function formatFrequency(value) {
@@ -253,13 +249,6 @@ startButton.addEventListener("click", () => {
     return;
   }
   start();
-});
-
-a4Input.addEventListener("change", () => {
-  a4Input.value = getA4().toString();
-  if (lastFrequency) {
-    updateReadout(getTuningResult(lastFrequency));
-  }
 });
 
 modeButtons.forEach((button) => {

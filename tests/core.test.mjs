@@ -82,7 +82,11 @@ test("findClosestInstrumentTarget requires the chosen instrument target for gree
 test("getTuningHint lists standard instrument strings", () => {
   assert.equal(getTuningHint("guitar"), "6=E2 5=A2 4=D3 3=G3 2=B3 1=E4");
   assert.equal(getTuningHint("ukulele"), "4=G4 3=C4 2=E4 1=A4");
-  assert.equal(getTuningHint("violin"), "4=G3 3=D4 2=A4 1=E5");
+});
+
+test("removed instrument modes fall back to chromatic tuning", () => {
+  assert.equal(getTuningHint("violin"), "Any 12-TET note");
+  assert.equal(findClosestInstrumentTarget(440, "violin", 440), null);
 });
 
 test("detectPitchAutoCorrelate detects a generated 440 Hz sine wave", () => {
